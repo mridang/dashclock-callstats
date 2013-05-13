@@ -105,7 +105,7 @@ public class CallstatsWidget extends DashClockExtension {
 			Log.v("CallstatsWidget", "Outgoing : " + intOutgoing);
 			Log.d("CallstatsWidget", "Outgoing : " + strOutgoing);
 
-			intTotal = intTotal / 60;
+			intTotal = (intTotal - ((intIncoming % 60) + (intOutgoing % 60))) / 60;
 			if (intTotal < 60) {
 				strTotal = getResources().getQuantityString(
 						R.plurals.minutes, intTotal, intTotal);
