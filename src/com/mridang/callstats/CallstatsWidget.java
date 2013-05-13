@@ -54,10 +54,12 @@ public class CallstatsWidget extends DashClockExtension {
 		        	case Calls.INCOMING_TYPE:
 		        		intIncoming = intIncoming + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
 		        		intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+		        		break;
 	
 		        	case Calls.OUTGOING_TYPE:
 		        		intOutgoing = intOutgoing + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
 		        		intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+		        		break;
 
 	        	}
 
@@ -82,7 +84,8 @@ public class CallstatsWidget extends DashClockExtension {
 									intIncoming % 60, intIncoming % 60));
 				}
 			}
-			Log.v("CallstatsWidget", "Incoming : " + strIncoming);
+			Log.v("CallstatsWidget", "Incoming : " + intIncoming);
+			Log.d("CallstatsWidget", "Incoming : " + strIncoming);
 
 			intOutgoing = intOutgoing / 60;
 			if (intOutgoing < 60) {
@@ -99,7 +102,8 @@ public class CallstatsWidget extends DashClockExtension {
 									intOutgoing % 60, intOutgoing % 60));
 				}
 			}
-			Log.v("CallstatsWidget", "Outgoing : " + strOutgoing);
+			Log.v("CallstatsWidget", "Outgoing : " + intOutgoing);
+			Log.d("CallstatsWidget", "Outgoing : " + strOutgoing);
 
 			intTotal = intTotal / 60;
 			if (intTotal < 60) {
@@ -116,7 +120,8 @@ public class CallstatsWidget extends DashClockExtension {
 									intTotal % 60, intTotal % 60));
 				}
 			}
-			Log.v("CallstatsWidget", "Outgoing : " + strTotal);
+			Log.v("CallstatsWidget", "Total : " + intTotal);
+			Log.d("CallstatsWidget", "Total : " + strTotal);
 			
 			edtInformation
 					.expandedBody((edtInformation.expandedBody() == null ? ""
