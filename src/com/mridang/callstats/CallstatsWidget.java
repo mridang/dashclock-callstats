@@ -47,7 +47,7 @@ public class CallstatsWidget extends DashClockExtension {
 	        Integer intTotal = 0;
 	        Integer intOutgoing = 0;
 	        
-	        while (curCalls.moveToNext()) {
+	        while (curCalls != null && curCalls.moveToNext()) {
 
 	        	switch (curCalls.getInt(curCalls.getColumnIndex(Calls.TYPE))) {
 
