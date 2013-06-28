@@ -15,6 +15,19 @@ import com.google.android.apps.dashclock.api.ExtensionData;
 public class CallstatsWidget extends DashClockExtension {
 
 	/*
+	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onInitialize(boolean)
+	 */
+    @Override
+    protected void onInitialize(boolean isReconnect) {
+
+    	super.onInitialize(isReconnect);
+        if (!isReconnect) {
+            addWatchContentUris(new String[]{"content://call_log/calls"});
+        }
+
+    }
+	
+	/*
 	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onCreate()
 	 */
 	public void onCreate() {
@@ -32,8 +45,6 @@ public class CallstatsWidget extends DashClockExtension {
 	 */
 	@Override
 	protected void onUpdateData(int arg0) {
-
-		setUpdateWhenScreenOn(true);
 
 		Log.d("CallstatsWidget", "Calculating call statistics");
 		ExtensionData edtInformation = new ExtensionData();
