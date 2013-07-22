@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mridang.callstats"
-    android:versionCode="4"
-    android:versionName="0.4" >
+    android:versionCode="5"
+    android:versionName="0.5" >
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -30,7 +30,16 @@
             <meta-data
                 android:name="description"
                 android:value="@string/extension_info" />
+            <meta-data
+                android:name="settingsActivity"
+                android:value=".WidgetSettings" />
         </service>
+
+        <activity
+            android:name="com.mridang.callstats.WidgetSettings"
+            android:exported="true" 
+            android:label="@string/preferences_title" >
+        </activity>
     </application>
 
 </manifest>

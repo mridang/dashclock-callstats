@@ -1,7 +1,10 @@
 package com.mridang.callstats;
 
+import java.util.Calendar;
+
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
 import android.util.Log;
 
@@ -17,16 +20,19 @@ public class CallstatsWidget extends DashClockExtension {
 	/*
 	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onInitialize(boolean)
 	 */
-    @Override
-    protected void onInitialize(boolean isReconnect) {
+	@Override
+	protected void onInitialize(boolean isReconnect) {
 
-    	super.onInitialize(isReconnect);
-        if (!isReconnect) {
-            addWatchContentUris(new String[]{"content://call_log/calls"});
-        }
+		super.onInitialize(isReconnect);
 
-    }
-	
+		if (!isReconnect) {
+
+			addWatchContentUris(new String[]{"content://call_log/calls"});
+
+		}
+
+	}
+
 	/*
 	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onCreate()
 	 */
@@ -52,35 +58,76 @@ public class CallstatsWidget extends DashClockExtension {
 
 		try {
 
-	        Cursor curCalls = getContentResolver().query(Uri.parse("content://call_log/calls"), null, null, null, null);
+			Log.d("CallstatsWidget", "Checking period that user has selected");
+			Calendar calCalendar = Calendar.getInstance();
+			calCalendar.set(Calendar.MINUTE, 0);
+			calCalendar.set(Calendar.HOUR, 0);
+			calCalendar.set(Calendar.SECOND, 0);
+			calCalendar.set(Calendar.MILLISECOND, 0);
+			calCalendar.set(Calendar.HOUR_OF_DAY, 0);
 
-	        Integer intIncoming = 0;
-	        Integer intTotal = 0;
-	        Integer intOutgoing = 0;
-	        
-	        while (curCalls != null && curCalls.moveToNext()) {
+			switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("period", "4"))) {
+			
+			case 0: //Day
+				Log.d("CallstatsWidget", "Fetch calls for the day");
+				calCalendar.set(Calendar.HOUR_OF_DAY, 0);
+				break;
+			
+			case 1: //Week
+				Log.d("CallstatsWidget", "Fetch calls for the week");
+				calCalendar.set(Calendar.DAY_OF_WEEK, calCalendar.getFirstDayOfWeek());
+				break;
+			
+			case 2: //Month
+				Log.d("CallstatsWidget", "Fetch calls for the month");
+				calCalendar.set(Calendar.DAY_OF_MONTH, 1);
+				break;
 
-	        	switch (curCalls.getInt(curCalls.getColumnIndex(Calls.TYPE))) {
+			case 3: //Year
+				Log.d("CallstatsWidget", "Fetch calls for the year");
+				calCalendar.set(Calendar.DAY_OF_YEAR, 1);
+				break;
+				
+			default:
+				Log.d("CallstatsWidget", "Fetch all calls");
+				calCalendar.clear(); 
+				break;
 
-		        	case Calls.INCOMING_TYPE:
-		        		intIncoming = intIncoming + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
-		        		intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
-		        		break;
-	
-		        	case Calls.OUTGOING_TYPE:
-		        		intOutgoing = intOutgoing + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
-		        		intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
-		        		break;
+			}
 
-	        	}
+			Log.d("CallstatsWidget", "Querying the database to get the phonecalls since " + calCalendar.getTime());
+			String strClause = android.provider.CallLog.Calls.DATE + " >= ?";
+			String[] strValues = {String.valueOf(calCalendar.getTimeInMillis())};
 
-	        }
-	        
-	        String strIncoming = "";
-	        String strTotal = "";
-	        String strOutgoing = "";
-	        
-	        intIncoming = intIncoming / 60;
+			Cursor curCalls = getContentResolver().query(Uri.parse("content://call_log/calls"), null, strClause, strValues, null);
+
+			Integer intIncoming = 0;
+			Integer intTotal = 0;
+			Integer intOutgoing = 0;
+
+			while (curCalls != null && curCalls.moveToNext()) {
+
+				switch (curCalls.getInt(curCalls.getColumnIndex(Calls.TYPE))) {
+
+				case Calls.INCOMING_TYPE:
+					intIncoming = intIncoming + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+					intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+					break;
+
+				case Calls.OUTGOING_TYPE:
+					intOutgoing = intOutgoing + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+					intTotal = intTotal + curCalls.getInt(curCalls.getColumnIndex(Calls.DURATION));
+					break;
+
+				}
+
+			}
+
+			String strIncoming = "";
+			String strTotal = "";
+			String strOutgoing = "";
+
+			intIncoming = intIncoming / 60;
 			if (intIncoming < 60) {
 				strIncoming = getResources().getQuantityString(
 						R.plurals.minutes, intIncoming, intIncoming);
@@ -133,19 +180,19 @@ public class CallstatsWidget extends DashClockExtension {
 			}
 			Log.v("CallstatsWidget", "Total : " + intTotal);
 			Log.d("CallstatsWidget", "Total : " + strTotal);
-			
+
 			edtInformation
-					.expandedBody((edtInformation.expandedBody() == null ? ""
-							: edtInformation.expandedBody() + "\n")
-							+ String.format(getString(R.string.incoming),
-									strIncoming));
+			.expandedBody((edtInformation.expandedBody() == null ? ""
+					: edtInformation.expandedBody() + "\n")
+					+ String.format(getString(R.string.incoming),
+							strIncoming));
 			edtInformation.status(String.format(
 					getString(R.string.total_calls), strTotal));
 			edtInformation
-					.expandedBody((edtInformation.expandedBody() == null ? ""
-							: edtInformation.expandedBody() + "\n")
-							+ String.format(getString(R.string.outgoing),
-									strOutgoing));
+			.expandedBody((edtInformation.expandedBody() == null ? ""
+					: edtInformation.expandedBody() + "\n")
+					+ String.format(getString(R.string.outgoing),
+							strOutgoing));
 
 		} catch (Exception e) {
 			Log.e("CallstatsWidget", "Encountered an error", e);
@@ -157,7 +204,7 @@ public class CallstatsWidget extends DashClockExtension {
 		Log.d("CallstatsWidget", "Done");
 
 	}
-	
+
 	/*
 	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onDestroy()
 	 */

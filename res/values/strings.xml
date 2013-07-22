@@ -4,8 +4,10 @@
     <string name="extension_name">Call Statistics</string>
     <string name="total_calls">Calls — %1$s</string>
 	<string name="and">%1$s and %2$s</string>
-    <string name="application_name">Dashclock Call Statistics Extension</string>
-    <string name="extension_info">Displays information about your phone call statistics.</string>
+	<string name="preferences_title">Phonecall Statistics Extension Settings</string>
+	<string name="period">Period</string>
+    <string name="application_name">Dashclock Phonecall Statistics Extension</string>
+    <string name="extension_info">Displays information about your phonecall statistics.</string>
     <string name="outgoing">Outgoing: %1$s</string>
 
 </resources>
