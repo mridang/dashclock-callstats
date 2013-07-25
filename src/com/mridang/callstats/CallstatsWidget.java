@@ -72,17 +72,17 @@ public class CallstatsWidget extends DashClockExtension {
 			calCalendar.set(Calendar.HOUR_OF_DAY, 0);
 
 			switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("period", "4"))) {
-			
+
 			case 0: //Day
 				Log.d("CallstatsWidget", "Fetch calls for the day");
 				calCalendar.set(Calendar.HOUR_OF_DAY, 0);
 				break;
-			
+
 			case 1: //Week
 				Log.d("CallstatsWidget", "Fetch calls for the week");
 				calCalendar.set(Calendar.DAY_OF_WEEK, calCalendar.getFirstDayOfWeek());
 				break;
-			
+
 			case 2: //Month
 				Log.d("CallstatsWidget", "Fetch calls for the month");
 				calCalendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -92,7 +92,7 @@ public class CallstatsWidget extends DashClockExtension {
 				Log.d("CallstatsWidget", "Fetch calls for the year");
 				calCalendar.set(Calendar.DAY_OF_YEAR, 1);
 				break;
-				
+
 			default:
 				Log.d("CallstatsWidget", "Fetch all calls");
 				calCalendar.clear(); 
@@ -200,7 +200,7 @@ public class CallstatsWidget extends DashClockExtension {
 							strOutgoing));
 
 			if (new Random().nextInt(5) == 0) {
-				
+
 				PackageManager mgrPackages = getApplicationContext().getPackageManager();
 
 				try {
@@ -212,7 +212,7 @@ public class CallstatsWidget extends DashClockExtension {
 					Integer intExtensions = 0;
 
 					for (PackageInfo pkgPackage : mgrPackages.getInstalledPackages(0)) {
-						
+
 						intExtensions = intExtensions + (pkgPackage.applicationInfo.packageName.startsWith("com.mridang.") ? 1 : 0); 
 
 					}
@@ -223,13 +223,16 @@ public class CallstatsWidget extends DashClockExtension {
 						edtInformation.clickIntent(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("market://details?id=com.mridang.donate")));
 						edtInformation.expandedTitle("Please consider a one time purchase to unlock.");
 						edtInformation.expandedBody("Thank you for using " + intExtensions + " extensions of mine. Click this to make a one-time purchase or use just one extension to make this disappear.");
+						setUpdateWhenScreenOn(true);
 
 					}
 
 				}
 
+			} else {
+				setUpdateWhenScreenOn(false);
 			}
-			
+
 		} catch (Exception e) {
 			Log.e("CallstatsWidget", "Encountered an error", e);
 			BugSenseHandler.sendException(e);
