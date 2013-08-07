@@ -55,11 +55,11 @@ public class CallstatsWidget extends DashClockExtension {
 	 * (int)
 	 */
 	@Override
-	protected void onUpdateData(int arg0) {
+	protected void onUpdateData(int intReason) {
 
 		Log.d("CallstatsWidget", "Calculating call statistics");
 		ExtensionData edtInformation = new ExtensionData();
-		edtInformation.visible(true);
+		setUpdateWhenScreenOn(false);
 
 		try {
 
@@ -198,6 +198,7 @@ public class CallstatsWidget extends DashClockExtension {
 					: edtInformation.expandedBody() + "\n")
 					+ String.format(getString(R.string.outgoing),
 							strOutgoing));
+			edtInformation.visible(true);
 
 			if (new Random().nextInt(5) == 0) {
 
@@ -234,6 +235,7 @@ public class CallstatsWidget extends DashClockExtension {
 			}
 
 		} catch (Exception e) {
+			edtInformation.visible(false);
 			Log.e("CallstatsWidget", "Encountered an error", e);
 			BugSenseHandler.sendException(e);
 		}
