@@ -2,7 +2,7 @@
 
     <string name="incoming">Incoming: %1$s</string>
     <string name="extension_name">Call Statistics</string>
-    <string name="total_calls">Calls — %1$s</string>
+    <string name="total_calls">%1$s</string>
 	<string name="and">%1$s and %2$s</string>
 	<string name="preferences_title">Phonecall Statistics Extension Settings</string>
 	<string name="period">Period</string>
