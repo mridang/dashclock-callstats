@@ -3,7 +3,10 @@ package com.mridang.callstats;
 import java.util.Calendar;
 import java.util.Random;
 
+import org.acra.ACRA;
+
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -13,7 +16,6 @@ import android.preference.PreferenceManager;
 import android.provider.CallLog.Calls;
 import android.util.Log;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
 
@@ -23,16 +25,18 @@ import com.google.android.apps.dashclock.api.ExtensionData;
 public class CallstatsWidget extends DashClockExtension {
 
 	/*
-	 * @see com.google.android.apps.dashclock.api.DashClockExtension#onInitialize(boolean)
+	 * @see
+	 * com.google.android.apps.dashclock.api.DashClockExtension#onInitialize
+	 * (boolean)
 	 */
 	@Override
-	protected void onInitialize(boolean isReconnect) {
+	protected void onInitialize(boolean booReconnect) {
 
-		super.onInitialize(isReconnect);
+		super.onInitialize(booReconnect);
 
-		if (!isReconnect) {
+		if (!booReconnect) {
 
-			addWatchContentUris(new String[]{"content://call_log/calls"});
+			addWatchContentUris(new String[] { "content://call_log/calls" });
 
 		}
 
@@ -45,7 +49,7 @@ public class CallstatsWidget extends DashClockExtension {
 
 		super.onCreate();
 		Log.d("CallstatsWidget", "Created");
-		BugSenseHandler.initAndStartSession(this, getString(R.string.bugsense));
+		ACRA.init(new AcraApplication(getApplicationContext()));
 
 	}
 
@@ -73,38 +77,39 @@ public class CallstatsWidget extends DashClockExtension {
 
 			switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("period", "4"))) {
 
-			case 0: //Day
+			case 0: // Day
 				Log.d("CallstatsWidget", "Fetch calls for the day");
 				calCalendar.set(Calendar.HOUR_OF_DAY, 0);
 				break;
 
-			case 1: //Week
+			case 1: // Week
 				Log.d("CallstatsWidget", "Fetch calls for the week");
 				calCalendar.set(Calendar.DAY_OF_WEEK, calCalendar.getFirstDayOfWeek());
 				break;
 
-			case 2: //Month
+			case 2: // Month
 				Log.d("CallstatsWidget", "Fetch calls for the month");
 				calCalendar.set(Calendar.DAY_OF_MONTH, 1);
 				break;
 
-			case 3: //Year
+			case 3: // Year
 				Log.d("CallstatsWidget", "Fetch calls for the year");
 				calCalendar.set(Calendar.DAY_OF_YEAR, 1);
 				break;
 
 			default:
 				Log.d("CallstatsWidget", "Fetch all calls");
-				calCalendar.clear(); 
+				calCalendar.clear();
 				break;
 
 			}
 
 			Log.d("CallstatsWidget", "Querying the database to get the phonecalls since " + calCalendar.getTime());
 			String strClause = android.provider.CallLog.Calls.DATE + " >= ?";
-			String[] strValues = {String.valueOf(calCalendar.getTimeInMillis())};
+			String[] strValues = { String.valueOf(calCalendar.getTimeInMillis()) };
 
-			Cursor curCalls = getContentResolver().query(Uri.parse("content://call_log/calls"), null, strClause, strValues, null);
+			Cursor curCalls = getContentResolver().query(Uri.parse("content://call_log/calls"), null, strClause,
+					strValues, null);
 
 			Integer intIncoming = 0;
 			Integer intTotal = 0;
@@ -134,17 +139,12 @@ public class CallstatsWidget extends DashClockExtension {
 
 			intIncoming = intIncoming / 60;
 			if (intIncoming < 60) {
-				strIncoming = getResources().getQuantityString(
-						R.plurals.minutes, intIncoming, intIncoming);
+				strIncoming = getResources().getQuantityString(R.plurals.minutes, intIncoming, intIncoming);
 			} else {
-				strIncoming = getResources().getQuantityString(R.plurals.hours,
-						intIncoming / 60, intIncoming / 60);
+				strIncoming = getResources().getQuantityString(R.plurals.hours, intIncoming / 60, intIncoming / 60);
 				if (intIncoming % 60 > 0) {
-					strIncoming = String.format(
-							getString(R.string.and),
-							strIncoming,
-							getResources().getQuantityString(R.plurals.minutes,
-									intIncoming % 60, intIncoming % 60));
+					strIncoming = String.format(getString(R.string.and), strIncoming,
+							getResources().getQuantityString(R.plurals.minutes, intIncoming % 60, intIncoming % 60));
 				}
 			}
 			Log.v("CallstatsWidget", "Incoming : " + intIncoming);
@@ -152,17 +152,12 @@ public class CallstatsWidget extends DashClockExtension {
 
 			intOutgoing = intOutgoing / 60;
 			if (intOutgoing < 60) {
-				strOutgoing = getResources().getQuantityString(
-						R.plurals.minutes, intOutgoing, intOutgoing);
+				strOutgoing = getResources().getQuantityString(R.plurals.minutes, intOutgoing, intOutgoing);
 			} else {
-				strOutgoing = getResources().getQuantityString(R.plurals.hours,
-						intOutgoing / 60, intOutgoing / 60);
+				strOutgoing = getResources().getQuantityString(R.plurals.hours, intOutgoing / 60, intOutgoing / 60);
 				if (intOutgoing % 60 > 0) {
-					strOutgoing = String.format(
-							getString(R.string.and),
-							strOutgoing,
-							getResources().getQuantityString(R.plurals.minutes,
-									intOutgoing % 60, intOutgoing % 60));
+					strOutgoing = String.format(getString(R.string.and), strOutgoing,
+							getResources().getQuantityString(R.plurals.minutes, intOutgoing % 60, intOutgoing % 60));
 				}
 			}
 			Log.v("CallstatsWidget", "Outgoing : " + intOutgoing);
@@ -170,37 +165,27 @@ public class CallstatsWidget extends DashClockExtension {
 
 			intTotal = (intTotal - ((intIncoming % 60) + (intOutgoing % 60))) / 60;
 			if (intTotal < 60) {
-				strTotal = getResources().getQuantityString(
-						R.plurals.minutes, intTotal, intTotal);
+				strTotal = getResources().getQuantityString(R.plurals.minutes, intTotal, intTotal);
 			} else {
-				strTotal = getResources().getQuantityString(R.plurals.hours,
-						intTotal / 60, intTotal / 60);
+				strTotal = getResources().getQuantityString(R.plurals.hours, intTotal / 60, intTotal / 60);
 				if (intTotal % 60 > 0) {
-					strTotal = String.format(
-							getString(R.string.and),
-							strTotal,
-							getResources().getQuantityString(R.plurals.minutes,
-									intTotal % 60, intTotal % 60));
+					strTotal = String.format(getString(R.string.and), strTotal,
+							getResources().getQuantityString(R.plurals.minutes, intTotal % 60, intTotal % 60));
 				}
 			}
 			Log.v("CallstatsWidget", "Total : " + intTotal);
 			Log.d("CallstatsWidget", "Total : " + strTotal);
 
-			edtInformation
-			.expandedBody((edtInformation.expandedBody() == null ? ""
-					: edtInformation.expandedBody() + "\n")
-					+ String.format(getString(R.string.incoming),
-							strIncoming));
-			edtInformation.status(String.format(
-					getString(R.string.total_calls), strTotal));
-			edtInformation
-			.expandedBody((edtInformation.expandedBody() == null ? ""
-					: edtInformation.expandedBody() + "\n")
-					+ String.format(getString(R.string.outgoing),
-							strOutgoing));
+			edtInformation.expandedBody((edtInformation.expandedBody() == null ? "" : edtInformation.expandedBody()
+					+ "\n")
+					+ String.format(getString(R.string.incoming), strIncoming));
+			edtInformation.status(String.format(getString(R.string.total_calls), strTotal));
+			edtInformation.expandedBody((edtInformation.expandedBody() == null ? "" : edtInformation.expandedBody()
+					+ "\n")
+					+ String.format(getString(R.string.outgoing), strOutgoing));
 			edtInformation.visible(true);
 
-			if (new Random().nextInt(5) == 0) {
+			if (new Random().nextInt(5) == 0 && !(0 != (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE))) {
 
 				PackageManager mgrPackages = getApplicationContext().getPackageManager();
 
@@ -211,36 +196,38 @@ public class CallstatsWidget extends DashClockExtension {
 				} catch (NameNotFoundException e) {
 
 					Integer intExtensions = 0;
-				    Intent ittFilter = new Intent("com.google.android.apps.dashclock.Extension");
-				    String strPackage;
+					Intent ittFilter = new Intent("com.google.android.apps.dashclock.Extension");
+					String strPackage;
 
-				    for (ResolveInfo info : mgrPackages.queryIntentServices(ittFilter, 0)) {
+					for (ResolveInfo info : mgrPackages.queryIntentServices(ittFilter, 0)) {
 
-				    	strPackage = info.serviceInfo.applicationInfo.packageName;
-						intExtensions = intExtensions + (strPackage.startsWith("com.mridang.") ? 1 : 0); 
+						strPackage = info.serviceInfo.applicationInfo.packageName;
+						intExtensions = intExtensions + (strPackage.startsWith("com.mridang.") ? 1 : 0);
 
 					}
 
 					if (intExtensions > 1) {
 
 						edtInformation.visible(true);
-						edtInformation.clickIntent(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("market://details?id=com.mridang.donate")));
+						edtInformation.clickIntent(new Intent(Intent.ACTION_VIEW).setData(Uri
+								.parse("market://details?id=com.mridang.donate")));
 						edtInformation.expandedTitle("Please consider a one time purchase to unlock.");
-						edtInformation.expandedBody("Thank you for using " + intExtensions + " extensions of mine. Click this to make a one-time purchase or use just one extension to make this disappear.");
+						edtInformation
+								.expandedBody("Thank you for using "
+										+ intExtensions
+										+ " extensions of mine. Click this to make a one-time purchase or use just one extension to make this disappear.");
 						setUpdateWhenScreenOn(true);
 
 					}
 
 				}
 
-			} else {
-				setUpdateWhenScreenOn(false);
 			}
 
 		} catch (Exception e) {
 			edtInformation.visible(false);
 			Log.e("CallstatsWidget", "Encountered an error", e);
-			BugSenseHandler.sendException(e);
+			ACRA.getErrorReporter().handleSilentException(e);
 		}
 
 		edtInformation.icon(R.drawable.ic_dashclock);
@@ -256,7 +243,6 @@ public class CallstatsWidget extends DashClockExtension {
 
 		super.onDestroy();
 		Log.d("CallstatsWidget", "Destroyed");
-		BugSenseHandler.closeSession(this);
 
 	}
 
