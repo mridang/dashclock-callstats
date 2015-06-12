@@ -1,18 +1,19 @@
 package com.mridang.callstats;
 
-import java.util.Calendar;
-
-import org.acra.ACRA;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.CallLog;
 import android.provider.CallLog.Calls;
 import android.util.Log;
 
 import com.google.android.apps.dashclock.api.ExtensionData;
+
+import org.acra.ACRA;
+
+import java.util.Calendar;
 
 /*
  * This class is the main class that provides the widget
@@ -177,9 +178,12 @@ public class CallstatsWidget extends ImprovedExtension {
 					+ "\n")
 					+ String.format(getString(R.string.incoming), strIncoming));
 			edtInformation.status(String.format(getString(R.string.total_calls), strTotal));
+			edtInformation.expandedTitle(String.format(getString(R.string.total_calls), strTotal));
 			edtInformation.expandedBody((edtInformation.expandedBody() == null ? "" : edtInformation.expandedBody()
 					+ "\n")
 					+ String.format(getString(R.string.outgoing), strOutgoing));
+			edtInformation.clickIntent(new Intent(Intent.ACTION_VIEW));
+			edtInformation.clickIntent().setType(CallLog.Calls.CONTENT_TYPE);
 			edtInformation.visible(true);
 
 		} catch (Exception e) {
